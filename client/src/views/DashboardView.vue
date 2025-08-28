@@ -50,7 +50,7 @@ async function buscarUmidadeInicial() {
 // WebSocket
 function iniciarWebSocket() {
   // IMPORTANTE: Substitua 'YOUR_MACHINE_IP_ADDRESS' pelo endereço IP real da sua máquina onde a API está rodando
-  const socket = new WebSocket('ws://192.168.18.8:4000')
+  const socket = new WebSocket(`ws://${window.location.hostname}:4000`)
 
   socket.onopen = () => {
     statusConexao.value = 'Conectado'
@@ -222,13 +222,13 @@ onMounted(() => {
         <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Controle da Bomba D'água</h2>
         <div class="flex justify-center items-center gap-4">
           <button
-            @click="controlarRele('on')"
+            @click="controlarRele('ligar')"
             class="px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 dark:focus:ring-green-700"
           >
             Ligar Bomba
           </button>
           <button
-            @click="controlarRele('off')"
+            @click="controlarRele('desligar')"
             class="px-8 py-4 bg-red-500 text-white font-bold rounded-full shadow-lg hover:bg-red-600 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-red-300 dark:focus:ring-red-700"
           >
             Desligar Bomba

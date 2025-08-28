@@ -1,29 +1,50 @@
 const umidadeService = require('../services/umidadeService');
-const serialportService = require('../services/serialportService');
+const servicoSerial = require('../services/serialportService');
 
-exports.getUmidade = (req, res) => {
-  res.json(umidadeService.getUltimoValor());
+// Função que obtém o último valor de umidade, temperatura e umidade do ar
+exports.obterUmidade = (req, res) => {
+  res.json(umidadeService.obterUltimoValor());
 };
 
-exports.setUmidade = (req, res) => {
+// Função que define um novo valor de umidade e temperatura
+exports.definirUmidade = (req, res) => {
   const { umidade, temperatura } = req.body;
   if (umidade !== undefined && temperatura !== undefined) {
-    umidadeService.setUltimoValor({ umidade, temperatura });
+    umidadeService.definirUltimoValor({ umidade, temperatura });
     res.status(200).send('Valores atualizados com sucesso!');
   } else {
     res.status(400).send('Umidade e temperatura são obrigatórios.');
   }
 };
 
-exports.setRelayState = (req, res) => {
-  const { state } = req.body; // 'on' or 'off'
-  if (state === 'on') {
-    serialportService.turnRelayOn();
-    res.status(200).send('Comando para ligar relé enviado.');
-  } else if (state === 'off') {
-    serialportService.turnRelayOff();
-    res.status(200).send('Comando para desligar relé enviado.');
-  } else {
-    res.status(400).send('Estado do relé inválido. Use "on" ou "off".');
+exports.definirEstadoRele = async (req, res) => {
+  const { estado } = req.body;
+
+  if (!estado || (estado.trim() !== 'ligar' && estado.trim() !== 'desligar')) {
+    return res.status(400).send('Estado do relé inválido. Use "ligar" ou "desligar".');
+  }
+
+  try {
+    if (estado.trim() === 'ligar') {
+      await servicoSerial.ligarRele();
+      res.status(200).send('Comando para ligar o relé enviado com sucesso.');
+    } else {
+      await servicoSerial.desligarRele();
+      res.status(200).send('Comando para desligar o relé enviado com sucesso.');
+    }
+  } catch (error) {
+    // O erro da camada de serviço (serialport) agora é propagado para o cliente.
+    console.error('Falha ao executar comando no relé:', error.message);
+    res.status(500).send(`Falha ao comunicar com o dispositivo: ${error.message}`);
+  }
+};
+
+exports.definirModoAutomatico = async (req, res) => {
+  try {
+    await servicoSerial.ativarModoAutomatico();
+    res.status(200).send('Comando para reativar o modo automático enviado com sucesso.');
+  } catch (error) {
+    console.error('Falha ao ativar modo automático:', error.message);
+    res.status(500).send(`Falha ao comunicar com o dispositivo: ${error.message}`);
   }
 };

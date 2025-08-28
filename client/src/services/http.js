@@ -11,9 +11,8 @@ export const getHumidity = () => {
   return http.get('/umidade')
 }
 
-export const controlRelay = (state) => {
-  return http.post('/relay', { state })
+export const controlRelay = (estado) => {
+  return http.post('/rele', { estado })
 }
-export const stateRelay = async (estado) => http.post('/relay', { state: estado })
 
 export default http

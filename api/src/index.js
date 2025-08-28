@@ -5,8 +5,8 @@ const websocketService = require('./services/websocketService');
 
 const PORT = process.env.PORT || 4000;
 
-const server = app.listen(PORT, () => {
+const servidor = app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-websocketService.init(server);
+websocketService.iniciar(servidor);

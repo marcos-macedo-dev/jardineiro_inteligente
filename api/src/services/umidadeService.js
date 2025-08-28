@@ -1,25 +1,29 @@
-const serialportService = require('./serialportService'); // Import serialportService
+const servicoSerial = require('./serialportService');
 
+// Variável que armazena o último valor de umidade, temperatura e umidade do ar
 let ultimoValor = { umidade: 0, temperatura: 0, umidadeAr: 0 };
-let isRelayOn = false; // Track relay state
+// Variável que controla o estado do relé (ligado/desligado)
+let releLigado = false;
 
-// Define thresholds (adjust as needed)
-const UMIDADE_MINIMA_PARA_LIGAR_RELE = 30; // If humidity drops below this, turn relay ON
-const UMIDADE_MAXIMA_PARA_DESLIGAR_RELE = 60; // If humidity goes above this, turn relay OFF
+// Limites de umidade para ligar e desligar o relé
+const UMIDADE_MINIMA_LIGAR_RELE = 30; // Se a umidade for menor que esse valor, o relé liga
+const UMIDADE_MAXIMA_DESLIGAR_RELE = 60; // Se a umidade for maior que esse valor, o relé desliga
 
-exports.getUltimoValor = () => ultimoValor;
+// Função que retorna o último valor de umidade, temperatura e umidade do ar
+exports.obterUltimoValor = () => ultimoValor;
 
-exports.setUltimoValor = (novoValor) => {
+// Função que define o último valor de umidade, temperatura e umidade do ar
+exports.definirUltimoValor = (novoValor) => {
   ultimoValor = { ...ultimoValor, ...novoValor };
 
-  // Automatic watering logic
-  if (ultimoValor.umidade < UMIDADE_MINIMA_PARA_LIGAR_RELE && !isRelayOn) {
-    serialportService.turnRelayOn();
-    isRelayOn = true;
-    console.log('Umidade muito baixa. Relé LIGADO para regar.');
-  } else if (ultimoValor.umidade >= UMIDADE_MAXIMA_PARA_DESLIGAR_RELE && isRelayOn) {
-    serialportService.turnRelayOff();
-    isRelayOn = false;
-    console.log('Umidade suficiente. Relé DESLIGADO.');
+  // Lógica para ligar e desligar o relé automaticamente
+  if (ultimoValor.umidade < UMIDADE_MINIMA_LIGAR_RELE && !releLigado) {
+    servicoSerial.ligarRele();
+    releLigado = true;
+    console.log('Umidade baixa, ligando o relé.');
+  } else if (ultimoValor.umidade >= UMIDADE_MAXIMA_DESLIGAR_RELE && releLigado) {
+    servicoSerial.desligarRele();
+    releLigado = false;
+    console.log('Umidade suficiente, desligando o relé.');
   }
 };
